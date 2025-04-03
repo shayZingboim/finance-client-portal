@@ -1,4 +1,6 @@
 const userService = require('../services/userService');
+const jwt = require('jsonwebtoken');
+
 
 const getAllUsers = async (req, res) => {
   try {
@@ -59,14 +61,23 @@ const deleteUser = async (req, res) => {
 
 
 const loginUser = async (req, res) => {
-	try {
-	  const { email, password } = req.body;
-	  const user = await userService.authenticateUser(email, password);
-	  res.json({ message: 'התחברות מוצלחת', user });
-	} catch (err) {
-	  res.status(401).json({ error: err.message });
-	}
+  try {
+    const { email, password } = req.body;
+    const user = await userService.authenticateUser(email, password);
+
+    // יצירת JWT
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.json({ message: 'התחברות מוצלחת', token });
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
 };
+
 
 module.exports = {
   getAllUsers,

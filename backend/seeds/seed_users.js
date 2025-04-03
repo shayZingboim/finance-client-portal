@@ -1,13 +1,21 @@
-exports.seed = function(knex) {
-	// מוחק את כל הנתונים הקיימים בטבלה
-	return knex('users').del()
-	  .then(function () {
-		// מוסיף נתונים חדשים
-		return knex('users').insert([
-		  { username: 'user1', email: 'user1@example.com', password: 'hashed_password1' },
-		  { username: 'user2', email: 'user2@example.com', password: 'hashed_password2' },
-		  { username: 'user3', email: 'user3@example.com', password: 'hashed_password3' }
-		]);
-	  });
+exports.seed = async function(knex) {
+	// למשל מחיקת כל משתמשים קיימים:
+	await knex('users').del();
+  
+	// הוספת משתמשים חדשים
+	await knex('users').insert([
+	  {
+		username: 'admin',
+		email: 'admin@example.com',
+		password: '$2b$10$7HK3BdAVuVOGKMDWVmC1yuWYtqm2.n/EW9e9ld1ZYkKUB0HLHmMz2', // סיסמה מוצפנת (אפשר לשים זמנית רגיל ולממש hash אחר כך)
+		role: 'admin'
+	  },
+	  {
+		username: 'user1',
+		email: 'user1@example.com',
+		password: '$2b$10$7HK3BdAVuVOGKMDWVmC1yuWYtqm2.n/EW9e9ld1ZYkKUB0HLHmMz2',
+		role: 'client'
+	  }
+	]);
   };
   
