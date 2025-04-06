@@ -5,6 +5,10 @@ const { verifyToken, requireAdmin } = require('../middlewares/auth');
 
 // operations for all users
 router.post('/login', userController.loginUser);
+router.get('/me', verifyToken, userController.getMyProfile);
+router.post('/logout', userController.logoutUser);
+
+
 
 // operations only for admins
 router.post('/', verifyToken, requireAdmin, userController.createUser);

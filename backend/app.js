@@ -1,15 +1,22 @@
 const express = require('express');
+const cookieParser = require('cookie-parser'); // <-- הוספנו
+
 const userRoutes = require('./routes/userRoutes');
+const financialRoutes = require('./routes/financialRoutes');
 
 const app = express();
 
 app.use(express.json());
-app.use('/users', userRoutes);
+app.use(cookieParser()); // <-- הוספנו
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`the server run with port: ${PORT}`);
-});
+// הגדרת CORS (בשלב הבא נרחיב)
+const cors = require('cors');
+app.use(cors({
+  origin: 'http://localhost:3000', // או כתובת ה־frontend שלך
+  credentials: true // מאפשר לשלוח cookies
+}));
+
+app.use('/users', userRoutes);
+app.use('/financial', financialRoutes);
 
 module.exports = app;
-
