@@ -1,137 +1,47 @@
 exports.seed = async function (knex) {
-  await knex("financial_data").del();
-
-  await knex("financial_data").insert([
-    {
-      user_id: 2,
-      week_number: 1,
-      start_date: "2023-08-01",
-      end_date: "2023-08-07",
-      balance_start: 20000,
-      balance_end: 20341.86,
-      yield_percent: 1.5,
-      deposit: 500,
-      withdrawal: 100,
-      fees: 30,
-      notes: "שבוע 1",
-    },
-    {
-      user_id: 2,
-      week_number: 2,
-      start_date: "2023-08-08",
-      end_date: "2023-08-14",
-      balance_start: 20341.86,
-      balance_end: 20789.78,
-      yield_percent: 2.0,
-      deposit: 600,
-      withdrawal: 150,
-      fees: 20,
-      notes: "שבוע 2",
-    },
-    {
-      user_id: 2,
-      week_number: 3,
-      start_date: "2023-08-15",
-      end_date: "2023-08-21",
-      balance_start: 20789.78,
-      balance_end: 20983.13,
-      yield_percent: 1.3,
-      deposit: 400,
-      withdrawal: 100,
-      fees: 15,
-      notes: "שבוע 3",
-    },
-    {
-      user_id: 2,
-      week_number: 4,
-      start_date: "2023-08-22",
-      end_date: "2023-08-28",
-      balance_start: 20983.13,
-      balance_end: 21233.45,
-      yield_percent: 1.1,
-      deposit: 300,
-      withdrawal: 0,
-      fees: 20,
-      notes: "שבוע 4",
-    },
-    {
-      user_id: 2,
-      week_number: 5,
-      start_date: "2023-08-29",
-      end_date: "2023-09-04",
-      balance_start: 21233.45,
-      balance_end: 21578.22,
-      yield_percent: 1.2,
-      deposit: 500,
-      withdrawal: 50,
-      fees: 10,
-      notes: "שבוע 5",
-    },
-    {
-      user_id: 2,
-      week_number: 6,
-      start_date: "2023-09-05",
-      end_date: "2023-09-11",
-      balance_start: 21578.22,
-      balance_end: 21903.88,
-      yield_percent: 1.1,
-      deposit: 200,
-      withdrawal: 100,
-      fees: 15,
-      notes: "שבוע 6",
-    },
-    {
-      user_id: 2,
-      week_number: 7,
-      start_date: "2023-09-12",
-      end_date: "2023-09-18",
-      balance_start: 21903.88,
-      balance_end: 22223.5,
-      yield_percent: 1.2,
-      deposit: 300,
-      withdrawal: 0,
-      fees: 20,
-      notes: "שבוע 7",
-    },
-    {
-      user_id: 2,
-      week_number: 8,
-      start_date: "2023-09-19",
-      end_date: "2023-09-25",
-      balance_start: 22223.5,
-      balance_end: 22480.45,
-      yield_percent: 1.1,
-      deposit: 250,
-      withdrawal: 50,
-      fees: 10,
-      notes: "שבוע 8",
-    },
-    {
-      user_id: 2,
-      week_number: 9,
-      start_date: "2023-09-26",
-      end_date: "2023-10-02",
-      balance_start: 22480.45,
-      balance_end: 22824.19,
-      yield_percent: 1.3,
-      deposit: 400,
-      withdrawal: 0,
-      fees: 15,
-      notes: "שבוע 9",
-    },
-    {
-      user_id: 2,
-      week_number: 10,
-      start_date: "2023-10-03",
-      end_date: "2023-10-09",
-      balance_start: 22824.19,
-      balance_end: 23141.26,
-      yield_percent: 1.2,
-      deposit: 300,
-      withdrawal: 50,
-      fees: 10,
-      notes: "שבוע 10",
-    },
-    // אתה יכול להמשיך עם אותה תבנית עד week_number 30
-  ]);
-};
+	await knex("financial_data").del();
+  
+	const records = [];
+	const today = new Date();
+	const weekMs = 7 * 24 * 60 * 60 * 1000;
+  
+	for (let userId = 2; userId <= 101; userId++) {
+	  let balance = 10000 + Math.random() * 10000;
+  
+	  for (let week = 1; week <= 30; week++) {
+		const start = new Date(today.getTime() - (week + 1) * weekMs);
+		const end = new Date(start.getTime() + weekMs - 1);
+  
+		const deposit = Math.floor(Math.random() * 1000);
+		const withdrawal = Math.floor(Math.random() * 500);
+		const fees = Math.floor(Math.random() * 50);
+		const yieldPercent = parseFloat((Math.random() * 3 - 1).toFixed(2));
+  
+		const balanceStart = balance;
+		const balanceEnd =
+		  balanceStart + deposit - withdrawal - fees + (balanceStart * yieldPercent) / 100;
+  
+		balance = balanceEnd;
+  
+		records.push({
+		  user_id: userId,
+		  week_number: week,
+		  start_date: start.toISOString().slice(0, 10),
+		  end_date: end.toISOString().slice(0, 10),
+		  deposit,
+		  withdrawal,
+		  fees,
+		  balance_start: balanceStart.toFixed(2),
+		  balance_end: balanceEnd.toFixed(2),
+		  yield_percent: yieldPercent,
+		  notes: `שבוע ${week}`,
+		});
+	  }
+	}
+  
+	await knex("financial_data").insert(records);
+	await knex.raw(
+	  "SELECT setval('financial_data_id_seq', (SELECT MAX(id) FROM financial_data))"
+	);
+  };
+  

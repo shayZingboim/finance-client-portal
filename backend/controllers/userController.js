@@ -2,7 +2,7 @@ const userService = require('../services/userService');
 const userModel = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 
-
+// This controller handles user-related operations such as getting all users, getting a user by ID, creating a new user, updating a user, deleting a user, logging in, and logging out.
 const getAllUsers = async (req, res) => {
   try {
     const users = await userService.getAllUsers();
@@ -12,6 +12,7 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+// This function retrieves a user by their ID from the database and returns it in the response. If the user is not found, it returns a 404 status code with an error message.
 const getUserById = async (req, res) => {
   try {
     const user = await userService.getUserById(req.params.id);
@@ -25,6 +26,7 @@ const getUserById = async (req, res) => {
   }
 };
 
+// This function creates a new user in the database using the data provided in the request body. If successful, it returns the newly created user with a 201 status code. If an error occurs, it returns a 500 status code with an error message.
 const createUser = async (req, res) => {
   try {
     const newUser = await userService.createUser(req.body);
@@ -34,8 +36,10 @@ const createUser = async (req, res) => {
   }
 };
 
+// This function updates an existing user in the database using the ID provided in the request parameters and the data provided in the request body. If successful, it returns the updated user. If the user is not found, it returns a 404 status code with an error message. If an error occurs, it returns a 500 status code with an error message.
 const updateUser = async (req, res) => {
   try {
+	// This function updates an existing user in the database using the ID provided in the request parameters and the data provided in the request body. If successful, it returns the updated user. If the user is not found, it returns a 404 status code with an error message. If an error occurs, it returns a 500 status code with an error message.
     const updatedUser = await userService.updateUser(req.params.id, req.body);
     if (updatedUser) {
       res.json(updatedUser);
@@ -47,6 +51,7 @@ const updateUser = async (req, res) => {
   }
 };
 
+// This function deletes a user from the database using the ID provided in the request parameters. If successful, it returns a success message. If the user is not found, it returns a 404 status code with an error message. If an error occurs, it returns a 500 status code with an error message.
 const deleteUser = async (req, res) => {
   try {
     const deleted = await userService.deleteUser(req.params.id);
@@ -60,24 +65,25 @@ const deleteUser = async (req, res) => {
   }
 };
 
-
+// This function handles user login by checking the provided email and password against the database. If successful, it generates a JWT token and sends it back in a secure cookie. If authentication fails, it returns a 401 status code with an error message.
 const loginUser = async (req, res) => {
 	try {
 	  const { email, password } = req.body;
 	  const user = await userService.authenticateUser(email, password);
-  
+		
+	  // if user is not found or password is incorrect, an error will be thrown in the service layer
 	  const token = jwt.sign(
-		{ id: user.id, role: user.role },
-		process.env.JWT_SECRET,
-		{ expiresIn: '1h' }
+		{ id: user.id, role: user.role }, // payload for the token
+		process.env.JWT_SECRET, // secret key for signing the token
+		{ expiresIn: '1h' } // token expiration time
 	  );
   
-	  // שליחת הטוקן בתוך cookie מאובטח
+	  // Set the token in a secure cookie
 	  res.cookie('token', token, {
 		httpOnly: true,
-		secure: false, // שנה ל־true רק כשהאתר באינטרנט עם https
-		sameSite: 'lax', // או 'strict' או 'none' לפי הצורך
-		maxAge: 3600000 // שעה
+		secure: false, 
+		sameSite: 'lax',  
+		maxAge: 3600000 
 	  });
   
 	  res.json({ message: 'התחברות מוצלחת' });
@@ -89,13 +95,13 @@ const loginUser = async (req, res) => {
 const logoutUser = (req, res) => {
 	res.clearCookie('token', {
 	  httpOnly: true,
-	  sameSite: 'lax', // כמו בהגדרה של login
-	  secure: false    // אם עברת ל־https תחליף ל־true
+	  sameSite: 'lax',
+	  secure: false   
 	});
 	res.json({ message: 'התנתקת בהצלחה' });
 };
   
-
+//
 const getMyProfile = async (req, res) => {
 	try {
 	  const user = await userModel.getUserById(req.user.id);

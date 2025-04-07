@@ -1,24 +1,32 @@
-exports.seed = async function(knex) {
-	await knex('users').del();
-  
-	await knex('users').insert([
-	  {
-		id: 1,
-		username: 'admin',
-		email: 'admin@example.com',
-		password: '$2b$10$7HK3BdAVuVOGKMDWVmC1yuWYtqm2.n/EW9e9ld1ZYkKUB0HLHmMz2', // סיסמה: 12345678
-		role: 'admin'
-	  },
-	  {
-		id: 2,
-		username: 'user1',
-		email: 'user1@example.com',
-		password: '$2b$10$7HK3BdAVuVOGKMDWVmC1yuWYtqm2.n/EW9e9ld1ZYkKUB0HLHmMz2', // סיסמה: 12345678
-		role: 'client'
-	  }
-	]);
-  
-	// אפס את הספירה כדי להבטיח שה-id הבא יהיה 3
-	await knex.raw("SELECT setval('public.users_id_seq', (SELECT MAX(id) FROM users))");
+exports.seed = async function (knex) {
+  await knex("financial_data").del();
+  await knex("users").del();
+
+  const passwordHash =
+    "$2b$10$7HK3BdAVuVOGKMDWVmC1yuWYtqm2.n/EW9e9ld1ZYkKUB0HLHmMz2"; // 12345678
+
+  const users = [
+    {
+      id: 1,
+      username: "admin",
+      email: "admin@example.com",
+      password: passwordHash,
+      role: "admin",
+    },
+  ];
+
+  for (let i = 2; i <= 101; i++) {
+    users.push({
+      id: i,
+      username: `user${i}`,
+      email: `user${i}@example.com`,
+      password: passwordHash,
+      role: "client",
+    });
+  }
+
+  await knex("users").insert(users);
+  await knex.raw(
+    "SELECT setval('users_id_seq', (SELECT MAX(id) FROM users))"
+  );
 };
-  

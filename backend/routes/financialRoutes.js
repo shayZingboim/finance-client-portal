@@ -12,5 +12,7 @@ router.delete('/:id', verifyToken, requireAdmin, financialController.deleteInves
 router.delete('/user/:userId', verifyToken, requireAdmin, financialController.deleteAllByUserId);
 router.patch('/user/:userId', verifyToken, requireAdmin, financialController.updateAllByUserId);
 router.patch('/bulk-update', verifyToken, requireAdmin, financialController.bulkUpdateByFilter);
+router.get('/summaries', verifyToken, requireAdmin, financialController.getClientSummaries);
+
 
 module.exports = router;

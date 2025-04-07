@@ -39,6 +39,10 @@ const bulkUpdateByFilter = async (filters, updates) => {
   return await financialModel.bulkUpdateByFilter(filters, updates);
 };
 
+const getClientSummaries = async () => {
+	return await financialModel.getLatestBalancesByUser();
+};
+
 module.exports = {
   getMyFinancialData,
   addInvestment,
@@ -48,5 +52,6 @@ module.exports = {
   deleteInvestment,
   deleteAllByUserId,
   updateAllByUserId,
-  bulkUpdateByFilter
+  bulkUpdateByFilter,
+  getClientSummaries
 };

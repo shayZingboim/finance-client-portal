@@ -69,6 +69,25 @@ const bulkUpdateByFilter = async (filters, updates) => {
   return query.update(updates).returning('*');
 };
 
+const getLatestBalancesByUser = async () => {
+  return db('financial_data')
+    .select('user_id')
+    .max('end_date as latest_date')
+    .groupBy('user_id')
+    .then(async (latestDates) => {
+      const promises = latestDates.map(async ({ user_id, latest_date }) => {
+        const row = await db('financial_data')
+          .where({ user_id, end_date: latest_date })
+          .first('balance_end');
+        return {
+          user_id,
+          balance: row?.balance_end ?? 0,
+        };
+      });
+      return Promise.all(promises);
+    });
+};
+
 module.exports = {
   getAllByUserId,
   getFilteredByUserId,
@@ -79,5 +98,6 @@ module.exports = {
   deleteInvestment,
   deleteAllByUserId,
   updateAllByUserId,
-  bulkUpdateByFilter
+  bulkUpdateByFilter,
+  getLatestBalancesByUser
 };
