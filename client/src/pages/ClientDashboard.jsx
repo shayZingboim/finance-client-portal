@@ -9,7 +9,17 @@ export default function ClientDashboard() {
   const [allData, setAllData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState([]);
+  const [toDate, setToDate] = useState("");
+
+  const [currency, setCurrency] = useState("ILS");
+  const [rates, setRates] = useState({ USD: 1, EUR: 1, ILS: 1 });
+  const [lastUpdated, setLastUpdated] = useState("");
+
+  const fallbackRates = {
+    USD: 3.8,
+    EUR: 4.1,
+    ILS: 1,
+  };
 
   useEffect(() => {
     fetch(`${BASE_URL}/financial/my-data`, {
@@ -23,6 +33,25 @@ export default function ClientDashboard() {
         setAllData(sorted);
         setData(sorted);
         setLoading(false);
+      });
+
+    fetch("https://open.er-api.com/v6/latest/ILS")
+      .then((res) => res.json())
+      .then((json) => {
+        console.log("Full API response:", json);
+        if (!json || !json.rates) throw new Error("No rates found");
+        const ilsToOthers = {
+          USD: json.rates.USD,
+          EUR: json.rates.EUR,
+          ILS: 1,
+        };
+        setRates(ilsToOthers);
+        setLastUpdated(json.time_last_update_utc);
+      })
+      .catch((err) => {
+        console.warn("Using fallback currency rates due to error:", err);
+        setCurrency("ILS");
+        setRates(fallbackRates);
       });
   }, []);
 
@@ -45,9 +74,16 @@ export default function ClientDashboard() {
 
   const formatNumber = (num) => {
     const parsed = parseFloat(num);
-    return isNaN(parsed)
-      ? ""
-      : parsed.toLocaleString("he-IL", { maximumFractionDigits: 2 });
+    if (isNaN(parsed)) return "";
+
+    const rate = rates[currency] ?? 1;
+    const converted = parsed * rate;
+
+    return converted.toLocaleString("he-IL", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 2,
+    });
   };
 
   const totalDeposit = data.reduce((sum, i) => sum + parseFloat(i.deposit), 0);
@@ -126,6 +162,21 @@ export default function ClientDashboard() {
         </button>
       </div>
 
+      <div className="flex justify-end mb-2 gap-4 items-center">
+        <select
+          value={currency}
+          onChange={(e) => setCurrency(e.target.value)}
+          className="border border-gray-300 rounded px-2 py-1 text-sm"
+        >
+          <option value="ILS">ש"ח</option>
+          <option value="USD">דולר</option>
+          <option value="EUR">אירו</option>
+        </select>
+        {lastUpdated && (
+          <span className="text-xs text-gray-500">עודכן: {new Date(lastUpdated).toLocaleString("he-IL")}</span>
+        )}
+      </div>
+
       {loading ? (
         <p>טוען נתונים...</p>
       ) : (
@@ -177,20 +228,19 @@ export default function ClientDashboard() {
           </div>
 
           <div className="flex flex-wrap gap-4 justify-center items-start mt-8">
-  <div className="flex-1 min-w-[300px] max-w-[600px]">
-    <h2 className="text-center text-lg font-bold mb-2">תשואת הלקוח לאורך זמן</h2>
-    <div className="h-96">
-      <ClientYieldChart data={data} />
-    </div>
-  </div>
-  <div className="flex-1 min-w-[300px] max-w-[600px]">
-    <h2 className="text-center text-lg font-bold mb-2">השוואה לתשואת שוק</h2>
-    <div className="h-96">
-      <MarketComparisonChart data={data} />
-    </div>
-  </div>
-</div>
-
+            <div className="flex-1 min-w-[300px] max-w-[600px]">
+              <h2 className="text-center text-lg font-bold mb-2">תשואת הלקוח לאורך זמן</h2>
+              <div className="h-96">
+                <ClientYieldChart data={data} />
+              </div>
+            </div>
+            <div className="flex-1 min-w-[300px] max-w-[600px]">
+              <h2 className="text-center text-lg font-bold mb-2">השוואה לתשואת שוק</h2>
+              <div className="h-96">
+                <MarketComparisonChart data={data} />
+              </div>
+            </div>
+          </div>
         </>
       )}
     </div>
