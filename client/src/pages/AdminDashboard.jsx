@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,8 +19,8 @@ export default function AdminDashboard() {
   const fetchAll = async () => {
     try {
       const [userRes, summaryRes] = await Promise.all([
-        fetch("http://localhost:3001/users", { credentials: "include" }),
-        fetch("http://localhost:3001/financial/summaries", {
+        fetch(`${BASE_URL}/users`, { credentials: "include" }),
+        fetch(`${BASE_URL}/financial/summaries`, {
           credentials: "include",
         }),
       ]);
@@ -55,7 +57,7 @@ export default function AdminDashboard() {
 
   const handleSaveEdit = async () => {
     try {
-      const res = await fetch(`http://localhost:3001/users/${editUser.id}`, {
+      const res = await fetch(`${BASE_URL}/users/${editUser.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -83,7 +85,7 @@ export default function AdminDashboard() {
     if (!confirm) return;
 
     try {
-      const res = await fetch(`http://localhost:3001/users/${user.id}`, {
+      const res = await fetch(`${BASE_URL}/users/${user.id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -103,7 +105,7 @@ export default function AdminDashboard() {
 
   const handleAddUser = async () => {
     try {
-      const res = await fetch("http://localhost:3001/users", {
+      const res = await fetch(`${BASE_URL}/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

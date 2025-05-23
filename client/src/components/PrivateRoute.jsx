@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 /**
  * Protects a route and ensures user is authenticated.
  */
@@ -10,7 +12,7 @@ export default function PrivateRoute({ children }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("http://localhost:3001/users/me", {
+        const res = await fetch(`${BASE_URL}/users/me`, {
           credentials: "include",
         });
         if (res.ok) {

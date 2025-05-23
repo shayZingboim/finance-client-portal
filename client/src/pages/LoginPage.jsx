@@ -5,7 +5,7 @@ import { Card, CardContent } from "../components/ui/card";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export default function LoginPage() {
 	const navigate = useNavigate();
@@ -15,12 +15,13 @@ export default function LoginPage() {
 	const [error, setError] = useState("");
   
 	const handleLogin = async (e) => {
+	  console.log("BASE_URL:", BASE_URL);
 	  e.preventDefault();
 	  setLoading(true);
 	  setError("");
   
 	  try {
-		const res = await fetch("http://localhost:3001/users/login", {
+		const res = await fetch(`${BASE_URL}/users/login`, {
 		  method: "POST",
 		  credentials: "include",
 		  headers: { "Content-Type": "application/json" },
@@ -39,7 +40,7 @@ export default function LoginPage() {
 		}
   
 		// ✅ בקשת פרופיל כדי לבדוק את התפקיד
-		const profileRes = await fetch("http://localhost:3001/users/me", {
+		const profileRes = await fetch(`${BASE_URL}/users/me`, {
 		  credentials: "include",
 		});
 		const profile = await profileRes.json();

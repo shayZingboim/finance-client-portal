@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import ClientYieldChart from "../components/ClientYieldChart";
 import MarketComparisonChart from "../components/MarketComparisonChart";
 
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 export default function ClientDashboard() {
   const [data, setData] = useState([]);
   const [allData, setAllData] = useState([]);
@@ -10,7 +12,7 @@ export default function ClientDashboard() {
   const [toDate, setToDate] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:3001/financial/my-data", {
+    fetch(`${BASE_URL}/financial/my-data`, {
       credentials: "include",
     })
       .then((res) => res.json())

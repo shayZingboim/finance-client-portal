@@ -67,29 +67,32 @@ const deleteUser = async (req, res) => {
 
 // This function handles user login by checking the provided email and password against the database. If successful, it generates a JWT token and sends it back in a secure cookie. If authentication fails, it returns a 401 status code with an error message.
 const loginUser = async (req, res) => {
-	try {
-	  const { email, password } = req.body;
-	  const user = await userService.authenticateUser(email, password);
-		
-	  // if user is not found or password is incorrect, an error will be thrown in the service layer
-	  const token = jwt.sign(
-		{ id: user.id, role: user.role }, // payload for the token
-		process.env.JWT_SECRET, // secret key for signing the token
-		{ expiresIn: '1h' } // token expiration time
-	  );
-  
-	  // Set the token in a secure cookie
-	  res.cookie('token', token, {
-		httpOnly: true,
-		secure: false, 
-		sameSite: 'lax',  
-		maxAge: 3600000 
-	  });
-  
-	  res.json({ message: 'התחברות מוצלחת' });
-	} catch (err) {
-	  res.status(401).json({ error: err.message });
-	}
+  try {
+    const { email, password } = req.body;
+    console.log("📥 Login request:", { email });
+
+    const user = await userService.authenticateUser(email, password);
+
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 3600000
+    });
+
+    console.log("✅ Login successful for:", email);
+    res.json({ message: 'התחברות מוצלחת' });
+
+  } catch (err) {
+    console.error("❌ Login failed:", err.message);
+    res.status(401).json({ error: err.message });
+  }
 };
 
 const logoutUser = (req, res) => {

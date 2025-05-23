@@ -3,6 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import ClientYieldChart from "../components/ClientYieldChart";
 import MarketComparisonChart from "../components/MarketComparisonChart";
 
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 export default function AdminClientInvestments() {
   const { id } = useParams();
   const [data, setData] = useState([]);
@@ -27,7 +29,7 @@ export default function AdminClientInvestments() {
   const [editData, setEditData] = useState({});
 
   const fetchData = async () => {
-    const res = await fetch(`http://localhost:3001/financial/user/${id}`, {
+    const res = await fetch(`${BASE_URL}/financial/user/${id}`, {
       credentials: "include",
     });
     const json = await res.json();
@@ -72,7 +74,7 @@ const formatDate = (dateStr) =>
 
   const addInvestment = async () => {
     try {
-      const res = await fetch("http://localhost:3001/financial", {
+      const res = await fetch(`${BASE_URL}/financial`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -114,7 +116,7 @@ const formatDate = (dateStr) =>
   const saveEdit = async () => {
     try {
       const res = await fetch(
-        `http://localhost:3001/financial/${editRowId}`,
+        `${BASE_URL}/financial/${editRowId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -139,7 +141,7 @@ const formatDate = (dateStr) =>
     if (!confirm) return;
 
     try {
-      const res = await fetch(`http://localhost:3001/financial/${id}`, {
+      const res = await fetch(`${BASE_URL}/financial/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
